@@ -655,6 +655,65 @@ const table: SuggestionEntry[] = [
     ],
   },
 
+  // Gist list
+  {
+    match: (c) => c.domain === "gist" && c.action === "list" && !c.isEmpty,
+    lines: () => [
+      "Run `gh-axi gist view <id>` to view a gist's files and metadata",
+      "Run `gh-axi gist list --fields url,owner,created` to add extra fields",
+    ],
+  },
+  {
+    match: (c) =>
+      c.domain === "gist" && c.action === "list" && c.isEmpty === true,
+    lines: () => ["Run `gh-axi api /gists` to see gist data via the raw API"],
+  },
+
+  // Gist view
+  {
+    match: (c) => c.domain === "gist" && c.action === "view",
+    lines: (c) => [
+      `Run \`gh-axi gist view ${String(c.id)} --files\` to list file names only`,
+      `Run \`gh-axi gist list\` to see all your gists`,
+    ],
+  },
+
+  // Gist edit
+  {
+    match: (c) => c.domain === "gist" && c.action === "edit",
+    lines: (c) => [
+      `Run \`gh-axi gist list\` to see all gists`,
+      `Run \`gh-axi gist rename ${c.id} <old> <new>\` to rename a file`,
+    ],
+  },
+
+  // Gist rename
+  {
+    match: (c) => c.domain === "gist" && c.action === "rename",
+    lines: (c) => [
+      `Run \`gh-axi gist list\` to see all gists`,
+      `Run \`gh-axi gist edit ${c.id} --filename <name>\` to edit file content`,
+    ],
+  },
+
+  // Gist create
+  {
+    match: (c) => c.domain === "gist" && c.action === "create",
+    lines: () => ["Run `gh-axi gist list` to see all your gists"],
+  },
+
+  // Gist delete
+  {
+    match: (c) => c.domain === "gist" && c.action === "delete",
+    lines: () => ["Run `gh-axi gist list` to see remaining gists"],
+  },
+
+  // Gist clone
+  {
+    match: (c) => c.domain === "gist" && c.action === "clone",
+    lines: () => ["Run `gh-axi gist list` to see your gists"],
+  },
+
   // Search
   {
     match: (c) => c.domain === "search",

@@ -11,6 +11,7 @@ import { SECRET_HELP } from "../src/commands/secret.js";
 import { VARIABLE_HELP } from "../src/commands/variable.js";
 import { SEARCH_HELP } from "../src/commands/search.js";
 import { API_HELP } from "../src/commands/api.js";
+import { GIST_HELP } from "../src/commands/gist.js";
 import { TOP_HELP } from "../src/cli.js";
 
 /**
@@ -57,6 +58,7 @@ describe("Help output includes examples for every command family", () => {
   assertHelpHasExamples("VARIABLE_HELP", VARIABLE_HELP);
   assertHelpHasExamples("SEARCH_HELP", SEARCH_HELP);
   assertHelpHasExamples("API_HELP", API_HELP);
+  assertHelpHasExamples("GIST_HELP", GIST_HELP);
 });
 
 describe("--body-file discoverability", () => {
@@ -64,6 +66,31 @@ describe("--body-file discoverability", () => {
     expect(ISSUE_HELP).toContain("--body-file <path>");
     expect(PR_HELP).toContain("--body-file <path>");
     expect(RELEASE_HELP).toContain("--body-file");
+  });
+});
+
+describe("GIST_HELP subcommands", () => {
+  // Pin the subcommand count and names so a change that adds/removes gist
+  // subcommands turns this into a visible test failure rather than a silent
+  // doc discrepancy. With edit + rename merged the gist family is complete at
+  // seven subcommands.
+  it("declares exactly 7 subcommands", () => {
+    expect(GIST_HELP).toContain("subcommands[7]:");
+  });
+
+  it("names all seven subcommands: list, view, edit, rename, create, delete, clone", () => {
+    // The names appear on the indented line after "subcommands[7]:".
+    const lines = GIST_HELP.split("\n");
+    const headerIdx = lines.findIndex((l) => l.includes("subcommands[7]:"));
+    expect(headerIdx).toBeGreaterThan(-1);
+    const namesCombined = lines.slice(headerIdx, headerIdx + 2).join(" ");
+    expect(namesCombined).toContain("list");
+    expect(namesCombined).toContain("view");
+    expect(namesCombined).toContain("edit");
+    expect(namesCombined).toContain("rename");
+    expect(namesCombined).toContain("create");
+    expect(namesCombined).toContain("delete");
+    expect(namesCombined).toContain("clone");
   });
 });
 
