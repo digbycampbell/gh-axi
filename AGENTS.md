@@ -68,6 +68,12 @@ Both collectors reject a dangling (`--label` with nothing after it) or blank (`-
 Pick the collector that matches the surrounding file: `issue.ts` reads args non-destructively (`getAllFlags`), `pr.ts` consumes them (`takeAllFlags`).
 When a flag becomes repeatable, mark it `(repeatable)` in that command's `*_HELP` string.
 
+## gh stderr classification (`src/errors.ts`)
+
+`mapGhError` walks `patterns` in order and returns on the first regex hit, so **order is the contract**: a narrow, specific pattern must sit ahead of any broader one it would otherwise be swallowed by.
+gh sometimes embeds remediation hints in errors with a different root cause, so check new patterns against real stderr and place specific carriers of a generic hint first rather than narrowing the generic match.
+`test/errors.test.ts` pins the repo-resolution and genuine-auth cases.
+
 ## Maintaining this file
 
 Keep this file for knowledge useful to almost every future agent session in this project.
