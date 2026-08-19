@@ -68,7 +68,7 @@ subcommands[14]:
 flags{list}:
   --state <open|closed|all>, --label <name> (repeatable), --assignee <login>, --author <login>, --milestone <name>, --sort <created|updated|comments>, --limit <n> (default 30), --fields <a,b,c>
 flags{view}:
-  --comments, --full (show complete body without truncation)
+  --comments, --full (show the complete issue body and comment bodies without truncation)
 flags{create}:
   --title <text> (required), --body <text> or --body-file <path>, --assignee <login> (repeatable), --label <name> (repeatable), --milestone <name>, --project <name> (repeatable), --type <name>
 flags{edit}:
@@ -136,20 +136,19 @@ const viewSchemaWithoutType: FieldDef[] = viewSchema.filter(
   (f) => f !== issueTypeField,
 );
 
-const viewSchemaFull: FieldDef[] = viewSchema.map((f) =>
-  "as" in f && f.as === "body"
-    ? custom("body", (item: Record<string, unknown>) =>
-        typeof item.body === "string" ? item.body : "",
-      )
-    : f,
-);
+const withFullBody = (schema: FieldDef[]): FieldDef[] =>
+  schema.map((f) =>
+    "as" in f && f.as === "body"
+      ? custom("body", (item: Record<string, unknown>) =>
+          typeof item.body === "string" ? item.body : "",
+        )
+      : f,
+  );
 
-const viewSchemaFullWithoutType: FieldDef[] = viewSchemaWithoutType.map((f) =>
-  "as" in f && f.as === "body"
-    ? custom("body", (item: Record<string, unknown>) =>
-        typeof item.body === "string" ? item.body : "",
-      )
-    : f,
+const viewSchemaFull: FieldDef[] = withFullBody(viewSchema);
+
+const viewSchemaFullWithoutType: FieldDef[] = withFullBody(
+  viewSchemaWithoutType,
 );
 
 const createResultSchema: FieldDef[] = [
@@ -177,6 +176,8 @@ const commentResultSchema: FieldDef[] = [
     truncateBody(item.body, 800),
   ),
 ];
+
+const commentResultSchemaFull: FieldDef[] = withFullBody(commentResultSchema);
 
 const lockResultSchema: FieldDef[] = [
   field("number"),
@@ -358,13 +359,12 @@ async function viewIssue(args: string[], ctx?: RepoContext): Promise<string> {
   const blocks: string[] = [renderDetail("issue", augmented, schema)];
 
   if (withComments && Array.isArray(item.comments)) {
+    const commentSchema = full ? commentResultSchemaFull : commentResultSchema;
     blocks.push(
       renderList(
         "comments",
         item.comments as Record<string, unknown>[],
-        commentResultSchema.filter((d) =>
-          "key" in d ? d.key !== "number" : true,
-        ),
+        commentSchema.filter((d) => ("key" in d ? d.key !== "number" : true)),
       ),
     );
   }
