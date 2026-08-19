@@ -63,6 +63,10 @@ vi.mock("../src/commands/api.js", () => ({
   apiCommand: vi.fn().mockResolvedValue("api output"),
   API_HELP: "api help",
 }));
+vi.mock("../src/commands/stack.js", () => ({
+  stackCommand: vi.fn().mockResolvedValue("stack output"),
+  STACK_HELP: "stack help",
+}));
 
 vi.mock("../src/context.js", () => ({
   resolveRepo: vi.fn().mockReturnValue({
@@ -79,6 +83,8 @@ import { issueCommand } from "../src/commands/issue.js";
 import { prCommand } from "../src/commands/pr.js";
 import { releaseCommand } from "../src/commands/release.js";
 import { resolveRepo } from "../src/context.js";
+import { AxiError, StackError } from "../src/errors.js";
+import { encode } from "@toon-format/toon";
 
 const packageVersion = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf-8"),
@@ -199,7 +205,96 @@ describe("main CLI", () => {
     expect(options.getCommandHelp("issue")).toBe("issue help");
     expect(options.getCommandHelp("secret")).toBe("secret help");
     expect(options.getCommandHelp("variable")).toBe("variable help");
+    expect(options.getCommandHelp("stack")).toBe("stack help");
     expect(options.getCommandHelp("missing")).toBeUndefined();
+  });
+
+  it("keeps stack commands cwd-bound", async () => {
+    await main();
+    const options = vi.mocked(runAxiCli).mock.calls[0]?.[0];
+    const { stackCommand } = await import("../src/commands/stack.js");
+
+    await options.commands.stack(["view"], {
+      owner: "octo",
+      name: "repo",
+      nwo: "octo/repo",
+      source: "git",
+    });
+    expect(vi.mocked(stackCommand)).toHaveBeenCalledWith(["view"]);
+
+    expect(() =>
+      options.commands.stack(["view", "-R", "other/repo"], {
+        owner: "other",
+        name: "repo",
+        nwo: "other/repo",
+        source: "flag",
+      }),
+    ).toThrow(/current working directory/);
+
+    const originalGhRepo = process.env["GH_REPO"];
+    process.env["GH_REPO"] = "env/repo";
+    try {
+      expect(() =>
+        options.commands.stack(["view"], {
+          owner: "env",
+          name: "repo",
+          nwo: "env/repo",
+          source: "env",
+        }),
+      ).toThrow(/GH_REPO/);
+    } finally {
+      if (originalGhRepo === undefined) delete process.env["GH_REPO"];
+      else process.env["GH_REPO"] = originalGhRepo;
+    }
+  });
+
+  it("preserves stack-specific process exit codes", async () => {
+    await main();
+    const options = vi.mocked(runAxiCli).mock.calls[0]?.[0];
+    const formatted = options.formatError(
+      new StackError("rebase conflict", 3, ["resolve it"]),
+    );
+
+    expect(formatted.exitCode).toBe(3);
+    expect(formatted.output).toContain("STACK_ERROR");
+  });
+
+  it("formats non-stack errors exactly like the SDK default", async () => {
+    await main();
+    const options = vi.mocked(runAxiCli).mock.calls[0]?.[0];
+
+    const withHelp = options.formatError(
+      new AxiError('Repository "o/r" not found', "REPO_NOT_FOUND", [
+        "Run `gh-axi repo list` to see your repositories",
+        "Then retry",
+      ]),
+    );
+    expect(withHelp.output).toBe(
+      `${encode({
+        error: 'Repository "o/r" not found',
+        code: "REPO_NOT_FOUND",
+        help: ["Run `gh-axi repo list` to see your repositories", "Then retry"],
+      })}\n`,
+    );
+    expect(withHelp.output).toContain(
+      "help[2]: Run `gh-axi repo list` to see your repositories,Then retry",
+    );
+    expect(withHelp.exitCode).toBe(1);
+
+    const withoutHelp = options.formatError(
+      new AxiError("bad flag", "VALIDATION_ERROR"),
+    );
+    expect(withoutHelp.output).toBe(
+      `${encode({ error: "bad flag", code: "VALIDATION_ERROR" })}\n`,
+    );
+    expect(withoutHelp.output).not.toContain("help");
+    expect(withoutHelp.exitCode).toBe(2);
+
+    const plain = options.formatError(new Error("boom"));
+    expect(plain.output).toBe(
+      `${encode({ error: "boom", code: "UNKNOWN" })}\n`,
+    );
+    expect(plain.exitCode).toBe(1);
   });
 
   it("lists secret and variable in the top-level command index", () => {
