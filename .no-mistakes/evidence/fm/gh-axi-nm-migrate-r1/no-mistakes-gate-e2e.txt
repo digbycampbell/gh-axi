@@ -1,0 +1,35 @@
+$ normalized workflow and composite-action contract check
+PASS: opened/edited/reopened only; repo-owned paths, permissions, concurrency, job name and exemptions are unchanged; one pinned shared composite-action step invokes its verifier.
+
+$ pinned shared action with a valid GitHub pull_request event
+Found no-mistakes signature in PR #42 body.
+Found structurally compliant pipeline step attestation.
+::warning::PR-body attestation is author-editable and is not cryptographic proof that no-mistakes produced it.
+exit=0
+exempt=false
+compliant=true
+
+$ pinned shared action with intended duplicate-step last-wins semantics
+Found no-mistakes signature in PR #42 body.
+Found structurally compliant pipeline step attestation.
+::warning::PR-body attestation is author-editable and is not cryptographic proof that no-mistakes produced it.
+exit=0
+exempt=false
+compliant=true
+
+$ pinned shared action rejects a stale head-bound attestation
+::error::Pipeline attestation head_sha does not match the current PR head.
+
+attestation.head_sha: older
+PR head: abc123
+
+A later push must not pass on an older attestation. Re-run 'git push no-mistakes' so the PR body attestation binds to the current head.
+
+See CONTRIBUTING.md for setup and the full workflow.
+
+PR author: contributor
+Found no-mistakes signature in PR #42 body.
+exit=1
+exempt=false
+compliant=false
+exempt=false
