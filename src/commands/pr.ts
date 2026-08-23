@@ -74,6 +74,8 @@ interface PrItem {
   comments?: PrComment[];
   reviews?: unknown[];
   mergedBy?: { login: string };
+  baseRefName?: string;
+  autoMergeRequest?: { enabledBy?: { login: string } } | null;
 }
 
 interface PrReview {
@@ -138,6 +140,36 @@ function prRestPath(
     ? `repos/${ctx.owner}/${ctx.name}`
     : "repos/{owner}/{repo}";
   return `${repoPath}/pulls/${num}/${suffix}`;
+}
+
+/**
+ * True when the given base branch is guarded by a `merge_queue` ruleset.
+ *
+ * On such a branch a plain `gh pr merge` enqueues the PR but still exits 0, so
+ * gh-axi has to enqueue explicitly (`--auto`) and verify the real outcome
+ * rather than trust the exit code. Detection reads the branch's active rules
+ * via the REST API; the path carries an explicit `owner/repo` (never a `--repo`
+ * flag, which `gh api` rejects), mirroring `ghApiPaginatedArray`. Any failure
+ * to read rules (denied visibility, older GHE) falls back to the non-queue
+ * path so default-branch behaviour is unchanged.
+ */
+async function baseInMergeQueue(
+  ctx: RepoContext | undefined,
+  branch?: string,
+): Promise<boolean> {
+  if (!branch) return false;
+  const repoPath = ctx
+    ? `repos/${ctx.owner}/${ctx.name}`
+    : "repos/{owner}/{repo}";
+  try {
+    const rules = await ghJson<Array<{ type?: string }>>([
+      "api",
+      `${repoPath}/rules/branches/${encodeURIComponent(branch)}`,
+    ]);
+    return Array.isArray(rules) && rules.some((r) => r?.type === "merge_queue");
+  } catch {
+    return false;
+  }
 }
 
 function flattenPaginated<T>(items: T[] | T[][]): T[] {
@@ -331,7 +363,7 @@ flags{create}:
 flags{edit}:
   --title <text>, --body <text> or --body-file <path>, --add-label <name> (repeatable), --remove-label <name> (repeatable), --add-assignee <login> (repeatable), --remove-assignee <login> (repeatable), --add-reviewer <login> (repeatable), --remove-reviewer <login> (repeatable), --milestone
 flags{merge}:
-  --method <merge|squash|rebase>, --merge, --squash, --rebase, --auto, --delete-branch, --body <text> or --body-file <path>, --subject
+  --method <merge|squash|rebase>, --merge, --squash, --rebase, --auto, --delete-branch, --body <text> or --body-file <path>, --subject (a base branch with a merge queue auto-enqueues; status is merged or enqueued)
 flags{review}:
   --approve, --request-changes, --comment, --body <text> or --body-file <path>
 flags{comment}:
@@ -669,8 +701,16 @@ async function prMerge(args: string[], ctx?: RepoContext): Promise<string> {
   const subject = takeFlag(args, "--subject");
 
   // Idempotent: check if already merged
-  const pr = await ghJson<Pick<PrItem, "state" | "mergedBy" | "mergedAt">>(
-    ["pr", "view", String(num), "--json", "state,mergedBy,mergedAt"],
+  const pr = await ghJson<
+    Pick<PrItem, "state" | "mergedBy" | "mergedAt" | "baseRefName">
+  >(
+    [
+      "pr",
+      "view",
+      String(num),
+      "--json",
+      "state,mergedBy,mergedAt,baseRefName",
+    ],
     ctx,
   );
   if ((pr.state ?? "").toUpperCase() === "MERGED") {
@@ -696,14 +736,23 @@ async function prMerge(args: string[], ctx?: RepoContext): Promise<string> {
     ]);
   }
 
+  // A base branch guarded by a merge_queue ruleset does not merge on demand: a
+  // plain `gh pr merge` enqueues the PR and still exits 0, so the old
+  // `status: ok` was a phantom — it hid whether the PR merged, was merely
+  // enqueued, or did neither. Detect the queue and, unless the caller already
+  // opted into auto-merge, enqueue explicitly and report the true outcome.
+  const enqueue = !auto && (await baseInMergeQueue(ctx, pr.baseRefName));
+
   const ghArgs = ["pr", "merge", String(num)];
   if (method) ghArgs.push("--" + method);
-  if (auto) ghArgs.push("--auto");
+  if (auto || enqueue) ghArgs.push("--auto");
   if (deleteBranch) ghArgs.push("--delete-branch");
   if (body !== undefined) ghArgs.push("--body", body);
   if (subject) ghArgs.push("--subject", subject);
 
   await ghExec(ghArgs, ctx);
+
+  if (enqueue) return renderMergeQueueOutcome(num, ctx);
 
   return renderOutput([
     renderDetail(
@@ -715,6 +764,83 @@ async function prMerge(args: string[], ctx?: RepoContext): Promise<string> {
       getSuggestions({ domain: "pr", action: "merge", id: num, repo: ctx }),
     ),
   ]);
+}
+
+/**
+ * After enqueuing onto a merge queue, re-read the PR and report the real
+ * outcome: `merged` if it landed immediately, `enqueued` if auto-merge is now
+ * enabled, or a loud non-zero failure if the merge call claimed success yet the
+ * PR is neither — never a bare `status: ok` that would hide the distinction.
+ */
+async function renderMergeQueueOutcome(
+  num: number,
+  ctx?: RepoContext,
+): Promise<string> {
+  const after = await ghJson<
+    Pick<PrItem, "state" | "mergedBy" | "mergedAt" | "autoMergeRequest">
+  >(
+    [
+      "pr",
+      "view",
+      String(num),
+      "--json",
+      "state,mergedBy,mergedAt,autoMergeRequest",
+    ],
+    ctx,
+  );
+  const help = renderHelp(
+    getSuggestions({ domain: "pr", action: "merge", id: num, repo: ctx }),
+  );
+
+  if ((after.state ?? "").toUpperCase() === "MERGED") {
+    return renderOutput([
+      renderDetail(
+        "merged",
+        {
+          number: num,
+          status: "merged",
+          merged_by: after.mergedBy?.login ?? null,
+          merged_at: after.mergedAt ?? null,
+        },
+        [
+          field("number"),
+          field("status"),
+          field("merged_by"),
+          field("merged_at"),
+        ],
+      ),
+      help,
+    ]);
+  }
+
+  if (after.autoMergeRequest) {
+    return renderOutput([
+      renderDetail(
+        "merged",
+        {
+          number: num,
+          status: "enqueued",
+          auto_merge: "enabled",
+          enabled_by: after.autoMergeRequest.enabledBy?.login ?? null,
+        },
+        [
+          field("number"),
+          field("status"),
+          field("auto_merge"),
+          field("enabled_by"),
+        ],
+      ),
+      help,
+    ]);
+  }
+
+  throw new AxiError(
+    `pr merge for #${num} reported success but the PR is neither merged nor ` +
+      `enqueued (state=${(after.state ?? "unknown").toLowerCase()}); the merge ` +
+      `queue did not accept it`,
+    "UNKNOWN",
+    getSuggestions({ domain: "pr", action: "merge", id: num, repo: ctx }),
+  );
 }
 
 async function prReview(args: string[], ctx?: RepoContext): Promise<string> {

@@ -874,6 +874,112 @@ describe("prCommand", () => {
         ctx,
       );
     });
+
+    describe("merge queue", () => {
+      // Dispatch ghJson by call shape: the pre-merge PR view (carries
+      // baseRefName), the rules-check REST call, and the post-merge PR view
+      // (carries autoMergeRequest).
+      function mockQueue(opts: {
+        hasQueue: boolean;
+        after: Record<string, unknown>;
+      }) {
+        mockedGhJson.mockImplementation(async (args: string[]) => {
+          if (args[0] === "api") {
+            return opts.hasQueue ? [{ type: "merge_queue" }] : [];
+          }
+          const json = args[args.indexOf("--json") + 1] ?? "";
+          if (json.includes("autoMergeRequest")) return opts.after;
+          return { state: "OPEN", baseRefName: "main" };
+        });
+        mockedGhExec.mockResolvedValue("");
+      }
+
+      it("enqueues with --auto and reports enqueued when auto-merge is on", async () => {
+        mockQueue({
+          hasQueue: true,
+          after: {
+            state: "OPEN",
+            autoMergeRequest: { enabledBy: { login: "alice" } },
+          },
+        });
+
+        const result = await prCommand(["merge", "10", "--squash"], ctx);
+
+        expect(mockedGhExec).toHaveBeenCalledWith(
+          ["pr", "merge", "10", "--squash", "--auto"],
+          ctx,
+        );
+        expect(mockedGhJson).toHaveBeenCalledWith([
+          "api",
+          "repos/octo/repo/rules/branches/main",
+        ]);
+        expect(result).toContain("status: enqueued");
+        expect(result).toContain("auto_merge: enabled");
+        expect(result).not.toContain("status: ok");
+      });
+
+      it("reports merged when the queue merged the PR immediately", async () => {
+        mockQueue({
+          hasQueue: true,
+          after: {
+            state: "MERGED",
+            mergedBy: { login: "bob" },
+            mergedAt: "2024-01-01T00:00:00Z",
+            autoMergeRequest: null,
+          },
+        });
+
+        const result = await prCommand(["merge", "10", "--squash"], ctx);
+
+        expect(result).toContain("status: merged");
+        expect(result).toContain("bob");
+        expect(result).not.toContain("status: ok");
+      });
+
+      it("fails loudly when the merge call succeeded but nothing happened", async () => {
+        mockQueue({
+          hasQueue: true,
+          after: { state: "OPEN", autoMergeRequest: null },
+        });
+
+        await expect(
+          prCommand(["merge", "10", "--squash"], ctx),
+        ).rejects.toThrow(/neither merged nor enqueued/);
+      });
+
+      it("does not add --auto for a base branch with no merge queue", async () => {
+        mockQueue({ hasQueue: false, after: {} });
+
+        const result = await prCommand(["merge", "10", "--squash"], ctx);
+
+        expect(mockedGhExec).toHaveBeenCalledWith(
+          ["pr", "merge", "10", "--squash"],
+          ctx,
+        );
+        expect(result).toContain("status: ok");
+      });
+
+      it("does not re-check or double-add --auto when the caller passes --auto", async () => {
+        mockedGhJson.mockResolvedValue({ state: "OPEN", baseRefName: "main" });
+        mockedGhExec.mockResolvedValue("");
+
+        const result = await prCommand(
+          ["merge", "10", "--squash", "--auto"],
+          ctx,
+        );
+
+        expect(mockedGhExec).toHaveBeenCalledWith(
+          ["pr", "merge", "10", "--squash", "--auto"],
+          ctx,
+        );
+        // No rules API probe happens on the caller-supplied --auto path.
+        expect(mockedGhJson).not.toHaveBeenCalledWith([
+          "api",
+          "repos/octo/repo/rules/branches/main",
+        ]);
+        expect(result).toContain("status: ok");
+      });
+    });
   });
 
   describe("--body-file", () => {

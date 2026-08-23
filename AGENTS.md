@@ -72,6 +72,13 @@ Both collectors reject a dangling (`--label` with nothing after it) or blank (`-
 Pick the collector that matches the surrounding file: `issue.ts` reads args non-destructively (`getAllFlags`), `pr.ts` consumes them (`takeAllFlags`).
 When a flag becomes repeatable, mark it `(repeatable)` in that command's `*_HELP` string.
 
+## `pr merge` and merge queues (`src/commands/pr.ts`)
+
+On a base branch guarded by a `merge_queue` ruleset, a plain `gh pr merge` enqueues the PR yet still exits 0, so the old blanket `status: ok` was a phantom that hid enqueue-vs-merge.
+`prMerge` now probes the base branch's active rules (`baseInMergeQueue`, a `gh api repos/<o>/<r>/rules/branches/<branch>` call whose path carries an explicit owner/repo because `gh api` rejects `--repo`, mirroring `ghApiPaginatedArray`) and, unless the caller already passed `--auto`, enqueues with `--auto` then re-reads the PR: `status: merged`, `status: enqueued`, or a loud non-zero `UNKNOWN` when the merge call succeeded but the PR is neither.
+Non-merge-queue branches and callers who supply their own `--auto` keep the exact prior `status: ok` output and skip the extra probe.
+Rule-read failures fall back to the non-queue path.
+
 ## gh stderr classification (`src/errors.ts`)
 
 `mapGhError` walks `patterns` in order and returns on the first regex hit, so **order is the contract**: a narrow, specific pattern must sit ahead of any broader one it would otherwise be swallowed by.
