@@ -34,7 +34,6 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "tsx bin/gh-axi.ts",
-    "prepare": "npm run build",
     "prepublishOnly": "npm run build"
   },
   "license": "MIT",

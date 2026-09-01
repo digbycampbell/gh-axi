@@ -1,0 +1,3 @@
+import type { RepoContext } from "../context.js";
+export declare const SEARCH_HELP = "usage: gh-axi search <type> <query> [flags]\ntypes[5]:\n  issues, prs, repos, commits, code\nflags{common}:\n  --repo, --owner, --state, --label, --assignee, --author, --sort, --limit <n> (default 1000)\nflags{prs}:\n  --draft, --review\nflags{repos}:\n  --language, --stars (e.g. \">100\")\nexamples:\n  gh-axi search issues \"login bug\" --repo octo/repo --state open\n  gh-axi search prs \"feat\" --author alice --sort updated\n  gh-axi search repos \"cli tool\" --language Go --stars \">50\"";
+export declare function searchCommand(args: string[], ctx?: RepoContext): Promise<string>;

@@ -1,0 +1,3 @@
+import type { RepoContext } from '../context.js';
+export declare const LABEL_HELP = "usage: gh-axi label <subcommand> [flags]\nsubcommands[4]:\n  list, create, edit <name>, delete <name>\nflags{list}:\n  --limit <n> (default 500)\nflags{create}:\n  --name <text> (required), --color <hex> (required, without #), --description <text>\nflags{edit}:\n  --name, --color, --description\nexamples:\n  gh-axi label list\n  gh-axi label create --name \"priority:high\" --color ff0000 --description \"High priority\"\n  gh-axi label delete \"priority:low\"";
+export declare function labelCommand(args: string[], ctx?: RepoContext): Promise<string>;
