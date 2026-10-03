@@ -18,6 +18,86 @@
 - **errors:** classify mixed-case generic `not found` gh errors as `NOT_FOUND`
   instead of falling back to `UNKNOWN`
 
+## [0.1.13](https://github.com/digbycampbell/gh-axi/compare/gh-axi-v0.1.35...gh-axi-v0.1.13) (2026-10-03)
+
+
+### Features
+
+* add installable agent skill ([#38](https://github.com/digbycampbell/gh-axi/issues/38)) ([c98b2fa](https://github.com/digbycampbell/gh-axi/commit/c98b2fa400ddd25e4f828f9e2d102b990ceb98c3))
+* **api:** support raw JSON request bodies ([#114](https://github.com/digbycampbell/gh-axi/issues/114)) ([15016cc](https://github.com/digbycampbell/gh-axi/commit/15016cce60c4ea4c6c83c06207854bd1c6097736))
+* **cli:** add top-level version flags ([#11](https://github.com/digbycampbell/gh-axi/issues/11)) ([a572f3d](https://github.com/digbycampbell/gh-axi/commit/a572f3df0c6c9bc54214983b0459379d5618a6a6))
+* **cli:** support GitHub Enterprise hosts ([#63](https://github.com/digbycampbell/gh-axi/issues/63)) ([2236646](https://github.com/digbycampbell/gh-axi/commit/2236646523af56d938b7a1fa1cb5b499aff33e57))
+* **commands:** add body-file support for markdown bodies ([#47](https://github.com/digbycampbell/gh-axi/issues/47)) ([9192ce6](https://github.com/digbycampbell/gh-axi/commit/9192ce60be6ca7cb928bb92fbbedd35dab77a503))
+* **commands:** add explicit hook setup ([#35](https://github.com/digbycampbell/gh-axi/issues/35)) ([3237b79](https://github.com/digbycampbell/gh-axi/commit/3237b79c07f59ac4927ce8d82ef1c3e32fa0ea14))
+* **commands:** add GitHub Projects support ([#67](https://github.com/digbycampbell/gh-axi/issues/67)) ([39156c8](https://github.com/digbycampbell/gh-axi/commit/39156c8d88c3ec284e3c8ea2b2178b3c5cdc3274))
+* **commands:** add issue subissue management ([#34](https://github.com/digbycampbell/gh-axi/issues/34)) ([e640259](https://github.com/digbycampbell/gh-axi/commit/e640259f3c167f448ee7df803aa5e79605580946))
+* **commands:** add secret and variable commands ([#59](https://github.com/digbycampbell/gh-axi/issues/59)) ([e3d00d8](https://github.com/digbycampbell/gh-axi/commit/e3d00d83b8b16106d81be5de1ed804028cb73622))
+* **commands:** support environment-scoped secrets ([#70](https://github.com/digbycampbell/gh-axi/issues/70)) ([ed8ae84](https://github.com/digbycampbell/gh-axi/commit/ed8ae84bf3b138502e23421047b7cc08248c062c))
+* **commands:** support issue and PR attachment uploads ([#139](https://github.com/digbycampbell/gh-axi/issues/139)) ([10551ab](https://github.com/digbycampbell/gh-axi/commit/10551aba21f70e490bf1292dd13e6b621f2d1144))
+* **errors:** map GitHub rate-limit stderr to RATE_LIMITED code ([#25](https://github.com/digbycampbell/gh-axi/issues/25)) ([869ff03](https://github.com/digbycampbell/gh-axi/commit/869ff03c3df8ab2ab99b4141c1e3d8356e683e6f))
+* **gist:** add gist command family with list, view, create, edit, rename, delete, clone ([#88](https://github.com/digbycampbell/gh-axi/issues/88)) ([32d2ea2](https://github.com/digbycampbell/gh-axi/commit/32d2ea219676406b7ba01df2cbefee68c0a295bf))
+* inherit SDK self-update command ([#51](https://github.com/digbycampbell/gh-axi/issues/51)) ([327c329](https://github.com/digbycampbell/gh-axi/commit/327c3294fae2bac2632580a3920688505156a449))
+* initial commit ([0bc360d](https://github.com/digbycampbell/gh-axi/commit/0bc360d09e296dd5ae4c1d7f9b0222d52b798d57))
+* **issue:** show resolved repository in issue view ([#154](https://github.com/digbycampbell/gh-axi/issues/154)) ([2bffd9a](https://github.com/digbycampbell/gh-axi/commit/2bffd9a5b60ded64d6c9851683b27a480173a7ee))
+* **issue:** support GitHub issue types ([#32](https://github.com/digbycampbell/gh-axi/issues/32)) ([58db24f](https://github.com/digbycampbell/gh-axi/commit/58db24f09f6c5c650c16f46ca097672452bbb4f2))
+* **pr:** add --admin flag to pr merge ([#140](https://github.com/digbycampbell/gh-axi/issues/140)) ([d0a789c](https://github.com/digbycampbell/gh-axi/commit/d0a789c9b1a6580adc2efc668a723ad3e9206351))
+* **pr:** add --full flag to diff and improve truncation ([677da2b](https://github.com/digbycampbell/gh-axi/commit/677da2b984ed51dde4cd1493357774c9a59f0768))
+* **repo:** support local-source create with --source, --push, and --remote ([#135](https://github.com/digbycampbell/gh-axi/issues/135)) ([236010e](https://github.com/digbycampbell/gh-axi/commit/236010e2108868904016d83f04a6e70bbae31089))
+* **session:** add session start command and hooks ([646deba](https://github.com/digbycampbell/gh-axi/commit/646deba834b21e015c57d144d034234a4410a27b))
+* **skills:** add Hermes metadata to gh-axi skill ([#43](https://github.com/digbycampbell/gh-axi/issues/43)) ([f703922](https://github.com/digbycampbell/gh-axi/commit/f703922b7257b67eb15d5024a21e4100fb430ba8))
+* **stack:** add agent-safe stacked PR support ([#93](https://github.com/digbycampbell/gh-axi/issues/93)) ([221bbb6](https://github.com/digbycampbell/gh-axi/commit/221bbb66337568efffffaa20108cccfd2aa8a496))
+
+
+### Bug Fixes
+
+* **api:** mark truncation on bare caller-shaped output that exceeds the raw limit ([#173](https://github.com/digbycampbell/gh-axi/issues/173)) ([61127ef](https://github.com/digbycampbell/gh-axi/commit/61127ef43674b8ce0127b5019417ce2c51802ed8))
+* **api:** print caller-shaped non-JSON values bare instead of wrapping in the api_response envelope ([#169](https://github.com/digbycampbell/gh-axi/issues/169)) ([12d106d](https://github.com/digbycampbell/gh-axi/commit/12d106d1350018cc6337d6c62d5167ae80db4aef))
+* **api:** support -X method flag ([#113](https://github.com/digbycampbell/gh-axi/issues/113)) ([b006434](https://github.com/digbycampbell/gh-axi/commit/b006434714de19da11d1e32f2b279012f9456942))
+* **api:** surface stdout diagnostics when gh fails with empty stderr ([#175](https://github.com/digbycampbell/gh-axi/issues/175)) ([9829ee7](https://github.com/digbycampbell/gh-axi/commit/9829ee735279a10e4af969ba99ec3dc8d68ad440))
+* **cli:** speed up standalone version flags ([#98](https://github.com/digbycampbell/gh-axi/issues/98)) ([4c548ee](https://github.com/digbycampbell/gh-axi/commit/4c548eec7d1e9ffba18fe12bd41a1b36cd805dfb))
+* **commands:** accept common gh flags on pr view, checks, diff, and list ([#166](https://github.com/digbycampbell/gh-axi/issues/166)) ([65e8b19](https://github.com/digbycampbell/gh-axi/commit/65e8b190ab09c52b3e3e4bd884540c15749201a9))
+* **commands:** apply all repeated --label flags on issue and pr create ([#57](https://github.com/digbycampbell/gh-axi/issues/57)) ([0d75865](https://github.com/digbycampbell/gh-axi/commit/0d758656d00c07651cf199eef18ffc1bb5ca9281))
+* **commands:** apply every repeated label, assignee, reviewer and project flag ([#78](https://github.com/digbycampbell/gh-axi/issues/78)) ([2a6f6f4](https://github.com/digbycampbell/gh-axi/commit/2a6f6f45335ef4214db98e16338f274e790047e2))
+* **commands:** bucket CANCELLED as cancelled and STALE as pending in pr checks ([#176](https://github.com/digbycampbell/gh-axi/issues/176)) ([6654854](https://github.com/digbycampbell/gh-axi/commit/66548541b0a5801f4532d0b69cc7b47cb6d027f7))
+* **commands:** count filtered issue and pr lists through search ([#79](https://github.com/digbycampbell/gh-axi/issues/79)) ([6e1dcf4](https://github.com/digbycampbell/gh-axi/commit/6e1dcf4dda91c18111f18475e071a8b8a0dd2977))
+* **commands:** document flags that are accepted but missing from --help ([#146](https://github.com/digbycampbell/gh-axi/issues/146)) ([ed44fc2](https://github.com/digbycampbell/gh-axi/commit/ed44fc215119c8720cc1339aa339b7983bef5c45))
+* **commands:** emit pr diff continuation with the repo flag after the command ([#174](https://github.com/digbycampbell/gh-axi/issues/174)) ([73393ca](https://github.com/digbycampbell/gh-axi/commit/73393cae520ec13a8025f66bcd09e5057cc85b01))
+* **commands:** honor --full for issue comments and add an api --full escape hatch ([#101](https://github.com/digbycampbell/gh-axi/issues/101)) ([11e0b82](https://github.com/digbycampbell/gh-axi/commit/11e0b825441c7253d66f1c3b842c670f1ea8c023))
+* **commands:** preserve head commit conditions for PR merges ([#153](https://github.com/digbycampbell/gh-axi/issues/153)) ([fe0771f](https://github.com/digbycampbell/gh-axi/commit/fe0771f90771b91451c0391f7184bdf576ca005d))
+* **commands:** preserve run log tails when truncating ([#40](https://github.com/digbycampbell/gh-axi/issues/40)) ([4531c7c](https://github.com/digbycampbell/gh-axi/commit/4531c7cf4d1b52763ed4fe2039848c52d100f7f6))
+* **commands:** read --body-file - from piped stdin ([#151](https://github.com/digbycampbell/gh-axi/issues/151)) ([6d5e469](https://github.com/digbycampbell/gh-axi/commit/6d5e469873826caea55fc238949cf6dbafee75d3))
+* **commands:** reject --flag=value on boolean flags instead of silently ignoring it ([#172](https://github.com/digbycampbell/gh-axi/issues/172)) ([d221ffa](https://github.com/digbycampbell/gh-axi/commit/d221ffabfe106e2c7a5998bde30bf58528678d22))
+* **commands:** reject unknown flags across all commands ([#104](https://github.com/digbycampbell/gh-axi/issues/104)) ([b12d4d0](https://github.com/digbycampbell/gh-axi/commit/b12d4d0f88a9486e6c33884fa7f8800fa6b7b842))
+* **commands:** render PR reviews with inline comments ([#20](https://github.com/digbycampbell/gh-axi/issues/20)) ([2952cf8](https://github.com/digbycampbell/gh-axi/commit/2952cf8ab7b83f7df8fdf3084db4bd88d9f05cb8))
+* **commands:** report base and head in pr create output ([#177](https://github.com/digbycampbell/gh-axi/issues/177)) ([d708e17](https://github.com/digbycampbell/gh-axi/commit/d708e1734150da67f097868434386f5d75001074))
+* **commands:** stop api from silently dropping --jq and unknown flags ([#81](https://github.com/digbycampbell/gh-axi/issues/81)) ([dc52d29](https://github.com/digbycampbell/gh-axi/commit/dc52d2938f46833d2663ba0313f7ef22fe4b3933))
+* **commands:** take last non-empty stdout line on empty-stderr gh failures and count pending checks in pr view ([#178](https://github.com/digbycampbell/gh-axi/issues/178)) ([c95fcf9](https://github.com/digbycampbell/gh-axi/commit/c95fcf9234ea69849a7e1a41cc283d71ffcacc41))
+* correctly classify workflow repository resolution failures ([#94](https://github.com/digbycampbell/gh-axi/issues/94)) ([fb1f6f6](https://github.com/digbycampbell/gh-axi/commit/fb1f6f692556cc9bcdf275d015fc5da3f96d9a77))
+* **deps:** upgrade axi-sdk-js ([a265622](https://github.com/digbycampbell/gh-axi/commit/a26562293f27d5058bd5a83fe2f6bdbea7a47330))
+* execute every PR body compliance event ([#82](https://github.com/digbycampbell/gh-axi/issues/82)) ([b8b4f3b](https://github.com/digbycampbell/gh-axi/commit/b8b4f3bc2497a81e3e50076a91b11a9e88de0c7e))
+* hide vendored no-mistakes skill from discovery ([#41](https://github.com/digbycampbell/gh-axi/issues/41)) ([1603e94](https://github.com/digbycampbell/gh-axi/commit/1603e941367cfad17cad933f12b630a827192a3d))
+* **hooks:** align Codex hook install ([#3](https://github.com/digbycampbell/gh-axi/issues/3)) ([fcb11a3](https://github.com/digbycampbell/gh-axi/commit/fcb11a3920f04f7aa3061e794ab661aa099d715e))
+* **issue:** normalize documented not_planned close reason to gh's "not planned" ([#167](https://github.com/digbycampbell/gh-axi/issues/167)) ([ca2154b](https://github.com/digbycampbell/gh-axi/commit/ca2154b8bc376a6ea93c0e613e630d27227d5c3a))
+* keep the installable skill as a CLI-deferring stub ([#118](https://github.com/digbycampbell/gh-axi/issues/118)) ([70fea53](https://github.com/digbycampbell/gh-axi/commit/70fea53e397a59831beaeed3b2645ae87aa0ee11))
+* make search query optional when filter flags are provided ([#22](https://github.com/digbycampbell/gh-axi/issues/22)) ([7fe9aed](https://github.com/digbycampbell/gh-axi/commit/7fe9aed01fca936266e28f3bc4c8e56c89f4e36f))
+* migrate gh-axi to axi-sdk-js ([#9](https://github.com/digbycampbell/gh-axi/issues/9)) ([137a759](https://github.com/digbycampbell/gh-axi/commit/137a759ba288ce7ac887c35a1710d90d307ea75e))
+* normalize generic not-found errors ([#7](https://github.com/digbycampbell/gh-axi/issues/7)) ([e9336b9](https://github.com/digbycampbell/gh-axi/commit/e9336b9318c81e034adf354686e88becb77c0e1c))
+* **pr:** classify legacy commit statuses and red check runs correctly ([#71](https://github.com/digbycampbell/gh-axi/issues/71)) ([291fc1a](https://github.com/digbycampbell/gh-axi/commit/291fc1af90005f3c9b10b1ae2f640c2ed2d46abb))
+* preserve gh argument forwarding ([#46](https://github.com/digbycampbell/gh-axi/issues/46)) ([9b1abda](https://github.com/digbycampbell/gh-axi/commit/9b1abda2ced148d0eccb6dafdc30339cf8e58a8c))
+* **pr:** report true merge-queue status instead of phantom ok ([ed3a36f](https://github.com/digbycampbell/gh-axi/commit/ed3a36f60d1dc8e7b6a0d7af5ae7b09b06eb6c0e))
+* **release:** correctly promote and demote releases ([#132](https://github.com/digbycampbell/gh-axi/issues/132)) ([22b6151](https://github.com/digbycampbell/gh-axi/commit/22b6151ced05f254f75c1e0202e80c91385f41e6))
+* **repo:** honor positional repo view targets ([#66](https://github.com/digbycampbell/gh-axi/issues/66)) ([b1092e2](https://github.com/digbycampbell/gh-axi/commit/b1092e22d986a8acab2d861905f96daab000e6ff))
+* **repo:** pass inherited context to repo fork as positional target instead of --repo ([#168](https://github.com/digbycampbell/gh-axi/issues/168)) ([a072b91](https://github.com/digbycampbell/gh-axi/commit/a072b915e2316db73ed63628f7de994220eba55e))
+* **repo:** report real owner/name and harden name handling in repo create ([#137](https://github.com/digbycampbell/gh-axi/issues/137)) ([18b7cd2](https://github.com/digbycampbell/gh-axi/commit/18b7cd2a594a1a662afec31ec69838a461d238d5))
+* **run:** cross-reference workflow dispatch command ([#53](https://github.com/digbycampbell/gh-axi/issues/53)) ([2a775c6](https://github.com/digbycampbell/gh-axi/commit/2a775c693c2154848db6c55cc97c0726a866467e))
+* **run:** harden job-level run view behavior ([#15](https://github.com/digbycampbell/gh-axi/issues/15)) ([162cc3a](https://github.com/digbycampbell/gh-axi/commit/162cc3a12364fce4a0fa5d89a5b7267325502917))
+* **suggestions:** place -R after command in repo-qualified hints ([#60](https://github.com/digbycampbell/gh-axi/issues/60)) ([de3b6f5](https://github.com/digbycampbell/gh-axi/commit/de3b6f5b779f2fc5cd88b31d6e0623a60642f4c6))
+
+
+### Miscellaneous Chores
+
+* release 0.1.13 ([e78ecea](https://github.com/digbycampbell/gh-axi/commit/e78ecea3a068febe2cd5a2e17b3532e9294fc63e))
+
 ## [0.1.35](https://github.com/kunchenguid/gh-axi/compare/gh-axi-v0.1.34...gh-axi-v0.1.35) (2026-08-30)
 
 
